@@ -1,14 +1,12 @@
 #!/usr/bin/env perl
-
 package DisableModify::WHM;
-   
+
 use strict;
 use warnings;
-     
 use JSON;
-   
+
 sub describe {
-    my $my_check = {
+    my $checkUser = {
         'category' => 'Whostmgr',
         'event'    => 'Accounts::Modify',
         'stage'    => 'pre',
@@ -16,19 +14,16 @@ sub describe {
         'exectype' => 'module',
     };
   
-    return [ $my_check ];
+    return [ $checkUser ];
 }
-  
+
 sub check {
     my ( $context, $data ) = @_;
-  
     my $result  = 1;
-    my $message = 'Reseller is not modifying their own account.';
-
+    my $message = 'Not modifying own account.';
     my $cpuser = $data->{'user'};
     my $resellers = `cat /var/cpanel/resellers | cut -d: -f1`;
     my @resellers = split '\n', $resellers;
-
     if ($ENV{'REMOTE_USER'} ne 'root') {
         for my $reseller (@resellers) {
             if ($cpuser eq $reseller) {
@@ -36,10 +31,9 @@ sub check {
                 $result = 0
             }
         }
-    } else {
-        $message = 'User is root.';
     }
+
     return $result, $message;
 }
-  
+
 1;
